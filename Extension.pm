@@ -10,7 +10,7 @@
 # implied. See the License for the specific language governing
 # rights and limitations under the License.
 #
-# The Original Code is the Scrums Bugzilla Extension.
+# The Original Code is the EditFieldsInline Bugzilla Extension.
 #
 # The Initial Developer of the Original Code is "Nokia corporation"
 # Portions created by the Initial Developer are Copyright (C) 2011 the
@@ -24,28 +24,16 @@ package Bugzilla::Extension::EditFieldsInline;
 use strict;
 use base qw(Bugzilla::Extension);
 
-#use Bugzilla::Constants;
-#use Bugzilla::Error;
-#use Bugzilla::Group;
-#use Bugzilla::User;
-
-#use Bugzilla::Extension::Scrums::Teams;
-#use Bugzilla::Extension::Scrums::Releases;
-#use Bugzilla::Extension::Scrums::Bugrpclib;
-
-#use Data::Dumper;
+use Bugzilla::Extension::EditFieldsInline::Bugrpclib;
 
 our $VERSION = '1.0';
-
-#use constant CONST_FEATURE => "feature";
-#use constant CONST_TASK    => "task";
 
 sub page_before_template {
     my ($self, $args) = @_;
 
     my ($vars, $page) = @$args{qw(vars page_id)};
 
-    if ($page eq "EditFieldsInline/ajax.html") {
+    if ($page eq "editfieldsinline/ajax.html") {
         my $cgi    = Bugzilla->cgi;
         my $schema = $cgi->param('schema');
         if ($schema eq "bug") {
@@ -54,6 +42,20 @@ sub page_before_template {
             update_bug_fields_from_json($vars);
         }
     }
+}
+
+sub config {
+    my ($self, $args) = @_;
+
+    my $config = $args->{config};
+    $config->{Editfieldsinline} = "Bugzilla::Extension::EditFieldsInline::ConfigEditfieldsinline";
+}
+
+sub config_add_panels {
+    my ($self, $args) = @_;
+
+    my $modules = $args->{panel_modules};
+    $modules->{Editfieldsinline} = "Bugzilla::Extension::EditFieldsInline::ConfigEditfieldsinline";
 }
 
 # This must be the last line of your extension.
