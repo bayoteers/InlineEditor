@@ -26,12 +26,12 @@ use strict;
 use constant NAME => 'EditFieldsInline';
 
 use constant REQUIRED_MODULES => [
-    {
-       package => 'libjson-xs-perl',
-       module  => 'JSON::XS',
-       version => 2.2,
-    },
-];
+                                   {
+                                      package => 'libjson-xs-perl',
+                                      module  => 'JSON::XS',
+                                      version => 2.2,
+                                   },
+                                 ];
 
 use constant OPTIONAL_MODULES => [];
 
