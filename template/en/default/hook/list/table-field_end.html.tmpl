@@ -37,12 +37,19 @@
 	</td></tr></table>
 [% ELSIF column == 'assigned_to' %]
  	<table><tr><td>
+[% IF daily AND bug.bug_status == "NEW" %]
+	<select>
+	<option>--</option>
+	<option>[% user.login() %]</option>
+	</select>
+[% ELSE %]
         [% INCLUDE global/userselect.html.tmpl
             id => "assigned_to"
             name => "assigned_to"
             value => bug.assigned_to
             size => 30
         %]
+[% END %]
 	</td><td>
  	<span class="ui-icon ui-icon-trash" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
 	</td><td>
@@ -62,7 +69,6 @@
 	</span>
 	</td></tr></table>
 [% ELSIF column == 'remaining_time' %]
-<!-- Removed script onchange="updateRemainingTime();"> -->
  	<table><tr><td>
         <input name="remaining_time" id="remaining_time"
                value="[% PROCESS formattimeunit
