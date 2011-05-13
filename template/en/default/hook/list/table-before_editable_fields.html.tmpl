@@ -93,7 +93,7 @@ function checkIfEditedFieldChanged(mustsave, mustask)
 	// If value is not saved (or it has not changed), original value is restored
         if(newValue != originalValue)
         {
-	    if(decidetosave(editedFieldid, mustsave, mustask))
+	    if(decidetosave(editedFieldid, fieldName, mustsave, mustask))
 	    { 
 		save(editedFieldid, newValue);
     		makeInputStatic(editedFieldid, newValue); 
@@ -118,7 +118,7 @@ function checkIfEditedFieldChanged(mustsave, mustask)
 	{
 	    // If value is not saved (or it has not changed), original value is restored
 	    newValue = selectEl.options[selectedIndex].value;
-	    if(decidetosave(editedFieldid, mustsave, mustask))
+	    if(decidetosave(editedFieldid, fieldName, mustsave, mustask))
 	    { 
 		save(editedFieldid, newValue);
 
@@ -142,7 +142,7 @@ function checkIfEditedFieldChanged(mustsave, mustask)
 /**
  * Function solves whether changed value of field will be saved or not.
  */
-function decidetosave(fieldid, mustsave, mustask) 
+function decidetosave(fieldid, fieldName, mustsave, mustask) 
 {
     var decission = false;
 
@@ -267,8 +267,9 @@ function makeeditable(fieldid)
     }
     else 
     {
-    	// Else edited field is select-element. Selecti-element be handled separately.
+    	// Else edited field is select-element. Select-element is handled separately.
 	var spanEl = staticEl.getElementsByTagName("span")[0];
+	// Title of element equals actual value in every field except assigned_to-field
 	var textVal = spanEl.title;
 	var selectEl = editableEl.getElementsByTagName("select")[0];
 	var allOptions = selectEl.options;
@@ -309,9 +310,10 @@ function make_daily_editable(fieldid)
     var staticEl = document.getElementById(staticId);
     var editableEl = document.getElementById(editableId);
 
-    // Editable element is select-element.
     var spanEl = staticEl.getElementsByTagName("span")[0];
-    var textVal = spanEl.title;
+    // Value is always hidden before starting to edit assigned_to in daily
+    var textVal = "--"; // Hidden value
+
     // Field is in 'daily' mode. There is no other possible users to choose from than user himself.
     if(textVal == user_login)
 	return false; // Bug which is assigned to user himself can not be unassigned in daily
@@ -381,6 +383,10 @@ function makeSelectStatic(fieldid, currentValue, fieldName)
     var editableId = fieldid + "_editable";
     var staticEl = document.getElementById(staticId);
     var editableEl = document.getElementById(editableId);
+
+    // Value is set to select-element once more. This has meaning, if original value is restored.
+    var selectEl = editableEl.getElementsByTagName("select")[0];
+    selectEl.value = currentValue;
 
     // Field 'assigned_to' is handled separately, because it is only field, 
     // that is not abbreviated in static text.

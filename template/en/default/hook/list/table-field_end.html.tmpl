@@ -19,6 +19,10 @@
   #   Visa Korhonen <visa.korhonen@symbio.com>
   #%]
 
+[% IF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
+-->
+[% END %]
+
 </td></tr>
 <tr id="[% bug.bug_id %]_[% column %]_editable" style="visibility: collapse"><td>
 
