@@ -35,6 +35,10 @@
 <tr id="[% bug.bug_id %]_[% column %]_static"><td border="1" ondblclick="makeeditable('[% bug.bug_id %]_[% column %]');">
 [% END %]
 [% ELSE %]
+[% IF column == 'scrums_blocked' %]
+<tr><td><a href="show_bug.cgi?id=[% bug.$column %]">
+[% ELSE %]
 <tr><td>
+[% END %]
 [% END %]	
 

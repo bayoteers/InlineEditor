@@ -21,6 +21,9 @@
 
 [% IF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
 -->
+[% ELSIF column == 'scrums_blocked' %]
+</a>
+[% ELSE %]
 [% END %]
 
 </td></tr>
