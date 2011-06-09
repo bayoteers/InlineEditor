@@ -37,9 +37,9 @@
             no_tds = 1, value = bug.$column
             editable = 1 %]
 	</td><td>
- 	<span class="ui-icon ui-icon-trash" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+ 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
 	</td><td>
-	<span class="ui-icon ui-icon-disk" title="save" onclick="checkIfEditedFieldChanged(true);">
+	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
 	</span>
 	</td></tr></table>
 [% ELSIF column == 'assigned_to' %]
@@ -58,9 +58,9 @@
         %]
 [% END %]
 	</td><td>
- 	<span class="ui-icon ui-icon-trash" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+ 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
 	</td><td>
-	<span class="ui-icon ui-icon-disk" title="save" onclick="checkIfEditedFieldChanged(true);">
+	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
 	</span>
 	</td></tr></table>
 [% ELSIF column == 'estimated_time' %]
@@ -70,9 +70,9 @@
                                  time_unit=bug.estimated_time %]"
                size="6" maxlength="6">
 	</td><td>
- 	<span class="ui-icon ui-icon-trash" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+ 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
 	</td><td>
-	<span class="ui-icon ui-icon-disk" title="save" onclick="checkIfEditedFieldChanged(true);">
+	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
 	</span>
 	</td></tr></table>
 [% ELSIF column == 'remaining_time' %]
@@ -82,9 +82,9 @@
                                  time_unit=bug.remaining_time %]"
                size="6" maxlength="6">
 	</td><td>
- 	<span class="ui-icon ui-icon-trash" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+ 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
 	</td><td>
-	<span class="ui-icon ui-icon-disk" title="save" onclick="checkIfEditedFieldChanged(true);">
+	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
 	</span>
 	</td></tr></table>
 [% ELSE %]
