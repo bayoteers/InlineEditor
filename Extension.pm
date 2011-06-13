@@ -19,12 +19,12 @@
 # Contributor(s):
 #   Visa Korhonen <visa.korhonen@symbio.com>
 
-package Bugzilla::Extension::EditFieldsInline;
+package Bugzilla::Extension::InlineEditor;
 
 use strict;
 use base qw(Bugzilla::Extension);
 
-use Bugzilla::Extension::EditFieldsInline::Bugrpclib;
+use Bugzilla::Extension::InlineEditor::Bugrpclib;
 
 our $VERSION = '1.0';
 
@@ -33,7 +33,7 @@ sub page_before_template {
 
     my ($vars, $page) = @$args{qw(vars page_id)};
 
-    if ($page eq "editfieldsinline/ajax.html") {
+    if ($page eq "InlineEditor/ajax.html") {
         my $cgi    = Bugzilla->cgi;
         my $schema = $cgi->param('schema');
         if ($schema eq "bug") {
@@ -48,14 +48,14 @@ sub config {
     my ($self, $args) = @_;
 
     my $config = $args->{config};
-    $config->{Editfieldsinline} = "Bugzilla::Extension::EditFieldsInline::ConfigEditfieldsinline";
+    $config->{InlineEditor} = "Bugzilla::Extension::InlineEditor::ConfigInlineEditor";
 }
 
 sub config_add_panels {
     my ($self, $args) = @_;
 
     my $modules = $args->{panel_modules};
-    $modules->{Editfieldsinline} = "Bugzilla::Extension::EditFieldsInline::ConfigEditfieldsinline";
+    $modules->{InlineEditor} = "Bugzilla::Extension::InlineEditor::ConfigInlineEditor";
 }
 
 # This must be the last line of your extension.

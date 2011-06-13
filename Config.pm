@@ -19,11 +19,11 @@
 # Contributor(s):
 #   Visa Korhonen <visa.korhonen@symbio.com>
 
-package Bugzilla::Extension::EditFieldsInline;
+package Bugzilla::Extension::InlineEditor;
 
 use strict;
 
-use constant NAME => 'EditFieldsInline';
+use constant NAME => 'InlineEditor';
 
 use constant REQUIRED_MODULES => [
                                    {
