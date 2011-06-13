@@ -19,7 +19,7 @@
 # Contributor(s):
 #   Visa Korhonen <visa.korhonen@symbio.com>
 
-package Bugzilla::Extension::EditFieldsInline::ConfigEditfieldsinline;
+package Bugzilla::Extension::InlineEditor::ConfigInlineEditor;
 use strict;
 use warnings;
 
