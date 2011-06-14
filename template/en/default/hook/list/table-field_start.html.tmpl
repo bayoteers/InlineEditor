@@ -19,7 +19,7 @@
   #   Visa Korhonen <visa.korhonen@symbio.com>
   #%]
 <table>
-[% editable = Param('bug_list_editable_fields') %]
+[% editable = Param('inline_editor_bug_list_editable_fields') %]
 [% caneditcolumn = 0 %]
 [% FOREACH field IN editable %]
 [% IF (field == column) %]

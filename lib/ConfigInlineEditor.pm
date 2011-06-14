@@ -30,7 +30,7 @@ sub get_param_list {
 
     my @param_list = (
                       {
-                        name    => 'bug_list_editable_fields',
+                        name    => 'inline_editor_bug_list_editable_fields',
                         desc    => 'Those fields in bug, that are editable in bug list directly',
                         type    => 'm',
                         choices => [ 'bug_severity', 'priority', 'assigned_to', 'estimated_time', 'remaining_time' ],
