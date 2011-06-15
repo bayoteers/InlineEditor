@@ -19,7 +19,14 @@
   #   Visa Korhonen <visa.korhonen@symbio.com>
   #%]
 
-[% IF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
+[% editable = Param('inline_editor_bug_list_editable_fields') %]
+[% caneditcolumn = 0 %]
+[% FOREACH field IN editable %]
+[% IF (field == column) %]
+[% caneditcolumn = 1 %]
+[% END %]
+[% END %]
+[% IF caneditcolumn AND column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
 -->
 [% ELSIF column == 'scrums_blocked' %]
 </a>
