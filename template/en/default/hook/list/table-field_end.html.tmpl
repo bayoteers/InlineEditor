@@ -19,85 +19,107 @@
   #   Visa Korhonen <visa.korhonen@symbio.com>
   #%]
 
-[% editable = Param('inline_editor_bug_list_editable_fields') %]
-[% caneditcolumn = 0 %]
-[% FOREACH field IN editable %]
-[% IF (field == column) %]
-[% caneditcolumn = 1 %]
-[% END %]
-[% END %]
-[% IF caneditcolumn AND column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
--->
-[% ELSIF column == 'scrums_blocked' %]
-</a>
-[% ELSE %]
-[% END %]
+    [% editable = Param('inline_editor_bug_list_editable_fields') %]
+    [% caneditcolumn = 0 %]
 
-</td></tr>
-<tr id="[% bug.bug_id %]_[% column %]_editable" style="visibility: collapse"><td>
+    [% FOREACH field IN editable %]
+      [% IF (field == column) %]
+        [% caneditcolumn = 1 %]
+      [% END %]
+    [% END %]
 
-[% IF column == 'bug_severity' || column == 'priority' %]       
- 	<table><tr><td>
-	[% PROCESS "bug/field.html.tmpl"
-            bug = bug, field = select_fields.$column,
-            override_legal_values = bug.choices.$column
-            no_tds = 1, value = bug.$column
-            editable = 1 %]
-	</td><td>
- 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
-	</td><td>
-	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
-	</span>
-	</td></tr></table>
-[% ELSIF column == 'assigned_to' %]
- 	<table><tr><td>
-[% IF daily AND bug.bug_status == "NEW" %]
-	<select>
-	<option>--</option>
-	<option>[% user.login() %]</option>
-	</select>
-[% ELSE %]
-        [% INCLUDE global/userselect.html.tmpl
-            id => "assigned_to"
-            name => "assigned_to"
-            value => bug.assigned_to
-            size => 30
-        %]
-[% END %]
-	</td><td>
- 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
-	</td><td>
-	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
-	</span>
-	</td></tr></table>
-[% ELSIF column == 'estimated_time' %]
- 	<table><tr><td>
-        <input name="estimated_time" id="estimated_time"
-               value="[% PROCESS formattimeunit
-                                 time_unit=bug.estimated_time %]"
-               size="6" maxlength="6">
-	</td><td>
- 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
-	</td><td>
-	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
-	</span>
-	</td></tr></table>
-[% ELSIF column == 'remaining_time' %]
- 	<table><tr><td>
-        <input name="remaining_time" id="remaining_time"
-               value="[% PROCESS formattimeunit
-                                 time_unit=bug.remaining_time %]"
-               size="6" maxlength="6">
-	</td><td>
- 	<span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
-	</td><td>
-	<span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);">
-	</span>
-	</td></tr></table>
-[% ELSE %]
-Error
-[% END %]
+    [% IF caneditcolumn AND column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
+      -->
+    [% ELSIF column == 'scrums_blocked' %]
+      </a>
+    [% ELSE %]
+    [% END %]
+      </td>
+    </tr>
 
-</td></tr>
-</table> 
-
+    <tr id="[% bug.bug_id %]_[% column %]_editable" style="visibility: collapse">
+      <td>
+        [% IF column == 'bug_severity' || column == 'priority' %]       
+          <table>
+            <tr>
+              <td>
+                [% PROCESS "bug/field.html.tmpl"
+                   bug = bug, field = select_fields.$column,
+                   override_legal_values = bug.choices.$column
+                   no_tds = 1, value = bug.$column
+                   editable = 1 %]
+              </td>
+              <td>
+               <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+              </td>
+              <td>
+                <span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);"></span>
+              </td>
+            </tr>
+          </table>
+        [% ELSIF column == 'assigned_to' %]
+          <table>
+            <tr>
+              <td>
+                [% IF daily AND bug.bug_status == "NEW" %]
+                  <select>
+                    <option>--</option>
+                    <option>[% user.login() %]</option>
+                  </select>
+                [% ELSE %]
+                  [% INCLUDE global/userselect.html.tmpl
+                     id => "assigned_to"
+                     name => "assigned_to"
+                     value => bug.assigned_to
+                     size => 30
+                  %]
+                [% END %]
+              </td>
+              <td>
+                <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+              </td>
+              <td>
+                <span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);"></span>
+              </td>
+            </tr>
+          </table>
+        [% ELSIF column == 'estimated_time' %]
+          <table>
+            <tr>
+              <td>
+                <input name="estimated_time" id="estimated_time"
+                       value="[% PROCESS formattimeunit
+                       time_unit=bug.estimated_time %]"
+                       size="6" maxlength="6">
+              </td>
+              <td>
+                <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+              </td>
+              <td>
+                <span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);"></span>
+              </td>
+            </tr>
+          </table>
+        [% ELSIF column == 'remaining_time' %]
+          <table>
+            <tr>
+              <td>
+                <input name="remaining_time" id="remaining_time"
+                       value="[% PROCESS formattimeunit
+                       time_unit=bug.remaining_time %]"
+                       size="6" maxlength="6">
+              </td>
+              <td>
+                <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel" onclick="checkIfEditedFieldChanged(false);"></span>
+              </td>
+              <td>
+                <span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);"></span>
+              </td>
+            </tr>
+          </table>
+        [% ELSE %]
+          Error
+        [% END %]
+      </td>
+    </tr>
+  </table>

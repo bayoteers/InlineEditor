@@ -18,27 +18,34 @@
   # Contributor(s):
   #   Visa Korhonen <visa.korhonen@symbio.com>
   #%]
-<table>
-[% editable = Param('inline_editor_bug_list_editable_fields') %]
-[% caneditcolumn = 0 %]
-[% FOREACH field IN editable %]
-[% IF (field == column) %]
-[% caneditcolumn = 1 %]
-[% END %]
-[% END %]
-[% IF (caneditcolumn == 1) %]
-[% IF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
-<tr id="[% bug.bug_id %]_[% column %]_static"><td border="1" title="[% bug.assigned_to %]" ondblclick="make_daily_editable('[% bug.bug_id %]_[% column %]');"> -- <!--
-[% ELSIF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to == user.login() %]
-<tr id="[% bug.bug_id %]_[% column %]_static"><td border="1" title="[% bug.assigned_to %]">
-[% ELSE %]
-<tr id="[% bug.bug_id %]_[% column %]_static"><td border="1" ondblclick="makeeditable('[% bug.bug_id %]_[% column %]');">
-[% END %]
-[% ELSE %]
-[% IF column == 'scrums_blocked' %]
-<tr><td><a href="show_bug.cgi?id=[% bug.$column %]">
-[% ELSE %]
-<tr><td>
-[% END %]
-[% END %]	
 
+<table>
+  [% editable = Param('inline_editor_bug_list_editable_fields') %]
+  [% caneditcolumn = 0 %]
+
+  [% FOREACH field IN editable %]
+    [% IF (field == column) %]
+      [% caneditcolumn = 1 %]
+    [% END %]
+  [% END %]
+
+  [% IF (caneditcolumn == 1) %]
+    [% IF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
+      <tr id="[% bug.bug_id %]_[% column %]_static">
+        <td border="1" title="[% bug.assigned_to %]" ondblclick="make_daily_editable('[% bug.bug_id %]_[% column %]');"> -- <!--
+    [% ELSIF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to == user.login() %]
+      <tr id="[% bug.bug_id %]_[% column %]_static">
+        <td border="1" title="[% bug.assigned_to %]">
+    [% ELSE %]
+      <tr id="[% bug.bug_id %]_[% column %]_static">
+        <td border="1" ondblclick="makeeditable('[% bug.bug_id %]_[% column %]');">
+    [% END %]
+  [% ELSE %]
+    [% IF column == 'scrums_blocked' %]
+      <tr>
+        <td><a href="show_bug.cgi?id=[% bug.$column %]">
+    [% ELSE %]
+      <tr>
+        <td>
+    [% END %]
+  [% END %]     
