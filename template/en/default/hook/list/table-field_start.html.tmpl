@@ -32,13 +32,13 @@
   [% IF (caneditcolumn == 1) %]
     [% IF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to != user.login() %]
       <tr id="[% bug.bug_id %]_[% column %]_static">
-        <td border="1" title="[% bug.assigned_to %]" ondblclick="make_daily_editable('[% bug.bug_id %]_[% column %]');"> -- <!--
+        <td title="[% bug.assigned_to %]" ondblclick="make_daily_editable('[% bug.bug_id %]_[% column %]');"> -- <!--
     [% ELSIF column == 'assigned_to' AND daily AND bug.bug_status == "NEW" AND bug.assigned_to == user.login() %]
       <tr id="[% bug.bug_id %]_[% column %]_static">
-        <td border="1" title="[% bug.assigned_to %]">
+        <td title="[% bug.assigned_to %]">
     [% ELSE %]
       <tr id="[% bug.bug_id %]_[% column %]_static">
-        <td border="1" ondblclick="makeeditable('[% bug.bug_id %]_[% column %]');">
+        <td ondblclick="makeeditable('[% bug.bug_id %]_[% column %]');">
     [% END %]
   [% ELSE %]
     [% IF column == 'scrums_blocked' %]

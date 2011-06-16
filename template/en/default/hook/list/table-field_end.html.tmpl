@@ -37,7 +37,7 @@
       </td>
     </tr>
 
-    <tr id="[% bug.bug_id %]_[% column %]_editable" style="visibility: collapse">
+    <tr id="[% bug.bug_id %]_[% column %]_editable" style="visibility: collapse;">
       <td>
         [% IF column == 'bug_severity' || column == 'priority' %]       
           <table>
@@ -50,7 +50,7 @@
                    editable = 1 %]
               </td>
               <td>
-               <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+                <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
               </td>
               <td>
                 <span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);"></span>
@@ -71,7 +71,6 @@
                      id => "assigned_to"
                      name => "assigned_to"
                      value => bug.assigned_to
-                     size => 30
                   %]
                 [% END %]
               </td>
@@ -90,7 +89,7 @@
                 <input name="estimated_time" id="estimated_time"
                        value="[% PROCESS formattimeunit
                        time_unit=bug.estimated_time %]"
-                       size="6" maxlength="6">
+                       size="3" maxlength="6">
               </td>
               <td>
                 <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
@@ -107,7 +106,7 @@
                 <input name="remaining_time" id="remaining_time"
                        value="[% PROCESS formattimeunit
                        time_unit=bug.remaining_time %]"
-                       size="6" maxlength="6">
+                       size="3" maxlength="6">
               </td>
               <td>
                 <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel" onclick="checkIfEditedFieldChanged(false);"></span>
