@@ -19,25 +19,27 @@
   #   Visa Korhonen <visa.korhonen@symbio.com>
   #%]
 
-<script>
-/*****************************************************************************
- * Toggling of static and editable fields is based on tr-tags, that
- * enclose both fields. Static field is preceded by tr-tag (field_start-hook)-
- * Static field is followed by ending tr-tag and editable field inside
- * enclosing tr-element (field_end-hook).
- *
- * Both static and editable fields contain event handlers for changing the
- * state of field. Static field contains hanlder in tr-element for 
- * double-click. Handler is either makeeditable or make_daily_editable
- * depending of field. Editable field contains event-handler
- * checkIfEditedFieldChanged. Event handler is called depending of whether
- * change is cancelled or saved.
- ****************************************************************************/
-</script>
-
 [% USE Bugzilla %]
 [% USE date %]
+
+<script type="text/javascript">
+  /*****************************************************************************
+   * Toggling of static and editable fields is based on tr-tags, that
+   * enclose both fields. Static field is preceded by tr-tag (field_start-hook)-
+   * Static field is followed by ending tr-tag and editable field inside
+   * enclosing tr-element (field_end-hook).
+   *
+   * Both static and editable fields contain event handlers for changing the
+   * state of field. Static field contains hanlder in tr-element for 
+   * double-click. Handler is either makeeditable or make_daily_editable
+   * depending of field. Editable field contains event-handler
+   * checkIfEditedFieldChanged. Event handler is called depending of whether
+   * change is cancelled or saved.
+   ****************************************************************************/
+</script>
+
 [% SET select_fields = {} %]
+
 [% FOREACH field = Bugzilla.get_fields(
   { type => constants.FIELD_TYPE_SINGLE_SELECT, custom => 0 })
 %]
@@ -47,362 +49,335 @@
 [% daily = 0 %]
 [% daily = urlquerypart.search("&daily") ? 1 : 0 %]
 
-<script>
-// Id of that field, which is currently in editable state
-var editedFieldid = "";
-// Value of field, which was assigned when field became to editable state
-var originalValue = "";
-// Value (index) of select-element, which was selected when field became to editable state
-var originalSelectedIndex = "";
-// User login is used for comparison, whether bug has been assigned to user himself
-var user_login = '[% user.login() %]';
-
-/**
- * Function finds element by it's id. First element of type 'input' is searched and returned.
- */
-function getInputElementByParentId(parentId)
-{
+<script type="text/javascript">
+  // Id of that field, which is currently in editable state
+  var editedFieldid = "";
+  
+  // Value of field, which was assigned when field became to editable state
+  var originalValue = "";
+  
+  // Value (index) of select-element, which was selected when field became to editable state
+  var originalSelectedIndex = "";
+  
+  // User login is used for comparison, whether bug has been assigned to user himself
+  var user_login = '[% user.login() %]';
+  
+  /**
+   * Function finds element by it's id. First element of type 'input' is searched and returned.
+   */
+  
+  function getInputElementByParentId(parentId) {
     var parentEl = document.getElementById(parentId);
     var inputsList = parentEl.getElementsByTagName("input");
     return inputsList[0];
-}
-
-/**
- * Function checks whether edited field has been changed from original value.
- * If value has changed, field is tried to be saved. Edited field is made hidden
- * static field is made visible. Static field is changed into same value, that is saved, 
- * or original value, if saving is not done.
- *
- * Editable fields of types 'input' and 'select' are handled separately.
- */
-function checkIfEditedFieldChanged(mustsave, mustask)
-{
+  }
+  
+  /**
+   * Function checks whether edited field has been changed from original value.
+   * If value has changed, field is tried to be saved. Edited field is made hidden
+   * static field is made visible. Static field is changed into same value, that is saved, 
+   * or original value, if saving is not done.
+   *
+   * Editable fields of types 'input' and 'select' are handled separately.
+   */
+  
+  function checkIfEditedFieldChanged(mustsave, mustask) {
     var editField = getInputElementByParentId(editedFieldid + "_editable");
     var newValue = "";
-
+  
     var bugId = editedFieldid.match(/^\d{1,6}/);
     var fieldName = editedFieldid.substr(bugId[0].length + 1);
+  
+    if (editField) {
+      // Input element was searched and if it was found, edited field is text-input-type
+      newValue = editField.value;
 
-    if(editField)
-    {
-	// Input element was searched and if it was found, edited field is text-input-type
-        newValue = editField.value;	
-	// If value is not saved (or it has not changed), original value is restored
-        if(newValue != originalValue)
-        {
-	    if(decidetosave(editedFieldid, fieldName, mustsave, mustask))
-	    { 
-		save(editedFieldid, newValue);
-    		makeInputStatic(editedFieldid, newValue); 
-    	    }
-            else
-            {
-    	        makeInputStatic(editedFieldid, originalValue);
-            }
+      // If value is not saved (or it has not changed), original value is restored
+      if (newValue != originalValue) {
+        if (decidetosave(editedFieldid, fieldName, mustsave, mustask)) {
+          save(editedFieldid, newValue);
+          makeInputStatic(editedFieldid, newValue);
+        } else {
+          makeInputStatic(editedFieldid, originalValue);
         }
-        else
-        {
-	    makeInputStatic(editedFieldid, originalValue);
+      } else {
+        makeInputStatic(editedFieldid, originalValue);
+      }
+    } else {
+      // Else edited field is selection-element. Selection-element be handled separately.
+      editableEl = document.getElementById(editedFieldid + "_editable");
+      var selectEl = editableEl.getElementsByTagName("select")[0];
+      var selectedIndex = selectEl.selectedIndex;
+
+      if (originalSelectedIndex != selectedIndex) {
+        // If value is not saved (or it has not changed), original value is restored
+        newValue = selectEl.options[selectedIndex].value;
+        if (decidetosave(editedFieldid, fieldName, mustsave, mustask)) {
+          save(editedFieldid, newValue);
+  
+          makeSelectStatic(editedFieldid, selectEl.value, fieldName);
+        } else {
+          makeSelectStatic(editedFieldid, originalValue, fieldName);
         }
+      } else {
+        makeSelectStatic(editedFieldid, originalValue, fieldName);
+      }
     }
-    else
-    {
-    	// Else edited field is selection-element. Selection-element be handled separately.
-        editableEl = document.getElementById(editedFieldid + "_editable");
-	var selectEl = editableEl.getElementsByTagName("select")[0];
-	var selectedIndex = selectEl.selectedIndex;
-	if(originalSelectedIndex != selectedIndex)
-	{
-	    // If value is not saved (or it has not changed), original value is restored
-	    newValue = selectEl.options[selectedIndex].value;
-	    if(decidetosave(editedFieldid, fieldName, mustsave, mustask))
-	    { 
-		save(editedFieldid, newValue);
-
-		makeSelectStatic(editedFieldid, selectEl.value, fieldName);
-            }
-            else
-            {
-		makeSelectStatic(editedFieldid, originalValue, fieldName);
-            }
-	}
-        else
-        {
-	    makeSelectStatic(editedFieldid, originalValue, fieldName);
-        }
-    }
-
+  
     editedFieldid = "";
     originalValue = "";
-}
-
-/**
- * Function solves whether changed value of field will be saved or not.
- */
-function decidetosave(fieldid, fieldName, mustsave, mustask) 
-{
+  }
+  
+  /**
+   * Function solves whether changed value of field will be saved or not.
+   */
+  
+  function decidetosave(fieldid, fieldName, mustsave, mustask) {
     var decission = false;
-
+  
     // If mustsave is false, this function does nothing, but this is really for clarity of code.
-    if(mustsave)
-    {
-        if(mustask)
-        {
-            if(confirm("Do you want to save changes in "+fieldName))
-	    {
-		decission = true;
-            }
-	    else
-	    {
-		decission = false;
-	    }
+    if (mustsave) {
+      if (mustask) {
+        if (confirm("Do you want to save changes in " + fieldName)) {
+          decission = true;
+        } else {
+          decission = false;
         }
-	else
-        {
-	    decission = true;
-	}
-    }
-    else
-    {
-	decission = false;
+      } else {
+        decission = true;
+      }
+    } else {
+      decission = false;
     }
     return decission;
-}
-
-
-/**
- * Function saves value.
- */
-function save(fieldid, newValue, mustask) 
-{
+  }
+  
+  /**
+   * Function saves value.
+   */
+  
+  function save(fieldid, newValue, mustask) {
     var bugId = fieldid.match(/^\d{1,6}/);
     var fieldName = fieldid.substr(bugId[0].length + 1);
-
+  
     saveBugField(bugId[0], fieldName, newValue);
-}
+  }
+  
+  /**
+   * Function is call-back function, that is called after succesfull ajax call returns.
+   * Ajax call if succesfull, if server responds without throwing exception. Ordered
+   * errors are shown in error message. Function shows status of saving to user.
+   */
+  
+  function saveResponse(response, status, xhr) {
+    var retObj = eval("(" + response + ")");
 
-/**
- * Function is call-back function, that is called after succesfull ajax call returns.
- * Ajax call if succesfull, if server responds without throwing exception. Ordered
- * errors are shown in error message. Function shows status of saving to user.
- */
-function saveResponse(response, status, xhr) 
-{ 
-	var retObj = eval("("+ response+")");
-	if(retObj.errors)
-	{
-		alert("There are errors: "+retObj.errormsg);
-	}
-	else
-	{
-		alert("Success");
-	}
-}
-
-/**
- * Function saves value of one bug field into database by doing ajax-call.
- */ 
-function saveBugField(bugId, fieldName, newValue)
-{
-    var json_params = '{ "method": "Bug.update", "params": {"ids" : [ {"' +bugId+ '": { "' +fieldName+ '": "' +newValue+ '"} } ] }, "id" : 0 }';
-
-    $.post('page.cgi?id=editfieldsinline/ajax.html', {
+    if (retObj.errors) {
+      alert("There are errors: " + retObj.errormsg);
+    } else {
+      alert("Success");
+    }
+  }
+  
+  /**
+   * Function saves value of one bug field into database by doing ajax-call.
+   */
+  
+  function saveBugField(bugId, fieldName, newValue) {
+    var json_params = '{ "method": "Bug.update", "params": {"ids" : [ {"' + bugId + '": { "' + fieldName + '": "' + newValue + '"} } ] }, "id" : 0 }';
+  
+    $.post('page.cgi?id=InlineEditor/ajax.html', {
+      schema: 'bug',
+      action: 'update',
+      data: json_params
+    }, saveResponse, 'text');
+  }
+  
+  /* Synchronous call for debugging */
+  
+  function synchronous_saveBugField(bugId, fieldName, newValue) {
+    var json_params = '{ "method": "Bug.update", "params": {"ids" : [ {"' + bugId + '": { "' + fieldName + '": "' + newValue + '"} } ] }, "id" : 0 }';
+  
+    $.ajax({
+      async: false,
+      url: 'page.cgi?id=scrums/ajax.html',
+      data: {
         schema: 'bug',
         action: 'update',
         data: json_params
-    }, saveResponse        , 'text');
-}
-
-/* Synchronous call for debugging */
-function synchronous_saveBugField(bugId, fieldName, newValue)
-{
-    var json_params = '{ "method": "Bug.update", "params": {"ids" : [ {"' +bugId+ '": { "' +fieldName+ '": "' +newValue+ '"} } ] }, "id" : 0 }';
-
-    $.ajax({ async: false,
-	url: 'page.cgi?id=scrums/ajax.html', 
-	data: {
-        	schema: 'bug',
-        	action: 'update',
-	        data: json_params },
-	success: saveResponse }
-    );
-}
-
-/**
- * Function makes static field hidden and editable field visible.
- * Value of edited field is stored so that it can be used when changed value is later saved.
- * While changing the state of one field to editable, id of that field is stored.
- *
- * Static and editable elements are TR-elements. Static element contains static text.
- * Editable TR-element contains element, which is either text-input or select.
- *
- * Editable fields of types 'input' and 'select' are handled separately.
- */
-function makeeditable(fieldid) 
-{
+      },
+      success: saveResponse
+    });
+  }
+  
+  /**
+   * Function makes static field hidden and editable field visible.
+   * Value of edited field is stored so that it can be used when changed value is later saved.
+   * While changing the state of one field to editable, id of that field is stored.
+   *
+   * Static and editable elements are TR-elements. Static element contains static text.
+   * Editable TR-element contains element, which is either text-input or select.
+   *
+   * Editable fields of types 'input' and 'select' are handled separately.
+   */
+  
+  function makeeditable(fieldid) {
     var status = false;
-
+  
     var staticId = fieldid + "_static";
     var editableId = fieldid + "_editable";
     var staticEl = document.getElementById(staticId);
     var editableEl = document.getElementById(editableId);
-
-    if(editedFieldid != "" && editedFieldid != fieldid)
-    {
-        status = checkIfEditedFieldChanged(true /* must save */, true /* must ask first */);
+  
+    if (editedFieldid != "" && editedFieldid != fieldid) {
+      status = checkIfEditedFieldChanged(true /* must save */ , true /* must ask first */ );
     }
+
     editedFieldid = fieldid;
     // Visibility is changed by changing CSS-style of TR-elements.
     staticEl.style.visibility = 'collapse';
     editableEl.style.visibility = 'visible';
-	
+  
     var allInputs = editableEl.getElementsByTagName("input");
-    if(allInputs.length > 0)
-    {
-	// Input element was searched and if it was found, edited field is text-input-type
-	originalValue = allInputs[0].value;
-    }
-    else 
-    {
-    	// Else edited field is select-element. Select-element is handled separately.
-	var spanEl = staticEl.getElementsByTagName("span")[0];
-	// Title of element equals actual value in every field except assigned_to-field
-	var textVal = spanEl.title;
-	var selectEl = editableEl.getElementsByTagName("select")[0];
-	var allOptions = selectEl.options;
-        var selectedIndex = 0;
-	var i = 0;
-        for(i = 0; i < allOptions.length; i++)
-        {
-	    if(allOptions[i].value == textVal)
-	    {
-		selectedIndex = i;
-	        break;
-	    }
-	}
-	var selectedItem = selectEl.options[selectedIndex];
-	originalSelectedIndex = selectedIndex;
-	originalValue = selectedItem.value;
-	selectEl.value = selectedItem.value;
-    }
-}
 
-/**
- * Function makes static field hidden and editable field visible.
- * Value of edited field is stored so that it can be used when changed value is later saved.
- * While changing the state of one field to editable, id of that field is stored.
- *
- * Static and editable elements are TR-elements. Static element contains static text.
- * Editable TR-element contains select-element.
- *
- * This function corresponds to makeeditable-function. Difference is, that this method is used only
- * form 'assigned_to' field in 'daily' mode of operation.
- */
-function make_daily_editable(fieldid) 
-{
+    if (allInputs.length > 0) {
+      // Input element was searched and if it was found, edited field is text-input-type
+      originalValue = allInputs[0].value;
+    } else {
+      // Else edited field is select-element. Select-element is handled separately.
+      var spanEl = staticEl.getElementsByTagName("span")[0];
+      // Title of element equals actual value in every field except assigned_to-field
+      var textVal = spanEl.title;
+      var selectEl = editableEl.getElementsByTagName("select")[0];
+      var allOptions = selectEl.options;
+      var selectedIndex = 0;
+      var i = 0;
+      for (i = 0; i < allOptions.length; i++) {
+        if (allOptions[i].value == textVal) {
+          selectedIndex = i;
+          break;
+        }
+      }
+      var selectedItem = selectEl.options[selectedIndex];
+      originalSelectedIndex = selectedIndex;
+      originalValue = selectedItem.value;
+      selectEl.value = selectedItem.value;
+    }
+  }
+  
+  /**
+   * Function makes static field hidden and editable field visible.
+   * Value of edited field is stored so that it can be used when changed value is later saved.
+   * While changing the state of one field to editable, id of that field is stored.
+   *
+   * Static and editable elements are TR-elements. Static element contains static text.
+   * Editable TR-element contains select-element.
+   *
+   * This function corresponds to makeeditable-function. Difference is, that this method is used only
+   * form 'assigned_to' field in 'daily' mode of operation.
+   */
+  
+  function make_daily_editable(fieldid) {
     var status = false;
-
+  
     var staticId = fieldid + "_static";
     var editableId = fieldid + "_editable";
     var staticEl = document.getElementById(staticId);
     var editableEl = document.getElementById(editableId);
-
+  
     var spanEl = staticEl.getElementsByTagName("span")[0];
     // Value is always hidden before starting to edit assigned_to in daily
     var textVal = "--"; // Hidden value
 
     // Field is in 'daily' mode. There is no other possible users to choose from than user himself.
-    if(textVal == user_login)
-	return false; // Bug which is assigned to user himself can not be unassigned in daily
+    if (textVal == user_login) return false; // Bug which is assigned to user himself can not be unassigned in daily
 
-    if(editedFieldid != "" && editedFieldid != fieldid)
-    {
-        status = checkIfEditedFieldChanged(true /* must save */, true /* must ask first */);
+    if (editedFieldid != "" && editedFieldid != fieldid) {
+      status = checkIfEditedFieldChanged(true /* must save */ , true /* must ask first */ );
     }
+
     editedFieldid = fieldid;
     staticEl.style.visibility = 'collapse';
     editableEl.style.visibility = 'visible';
-	
+  
     var selectEl = editableEl.getElementsByTagName("select")[0];
     var allOptions = selectEl.options;
-
+  
     // If there is no option in select, which equals assigned value, 0-index is selected.
     // Index corresponds to value '--', which is unassigned new item.
     var selectedIndex = 0;
     var i = 0;
-    for(i = 0; i < allOptions.length; i++)
-    {
-	if(allOptions[i].value == textVal)
-	{
-            selectedIndex = i;
-	    break;
-	}
+
+    for (i = 0; i < allOptions.length; i++) {
+      if (allOptions[i].value == textVal) {
+        selectedIndex = i;
+        break;
+      }
     }
+
     // Original value and corresponding index are stored so that they can be used, when field is saved.
     // (This is in fact unnecessary because assigning user as bug assignee makes field impossible to edit.)
     var selectedItem = selectEl.options[selectedIndex];
     originalSelectedIndex = selectedIndex;
     originalValue = textVal;
-}
-
-
-/**
- * Function makes static field visible and makes editable field hidden,
- * when editable field is type 'input'.
- *
- * Although editable field is made invisible, it is assigned value.
- * Assigning value of hidden field enables restoring original value,
- * when change is undone.
- */
-function makeInputStatic(fieldid, currentvalue) 
-{
+  }
+  
+  /**
+   * Function makes static field visible and makes editable field hidden,
+   * when editable field is type 'input'.
+   *
+   * Although editable field is made invisible, it is assigned value.
+   * Assigning value of hidden field enables restoring original value,
+   * when change is undone.
+   */
+  
+  function makeInputStatic(fieldid, currentvalue) {
     var staticId = fieldid + "_static";
     var editableId = fieldid + "_editable";
     var staticEl = document.getElementById(staticId);
     var editableEl = document.getElementById(editableId);
-
-    staticEl.firstChild.innerHTML = currentvalue;
-
+  
+    var td = staticEl.getElementsByTagName("td")[0];
+    td.innerHTML = currentvalue;
+  
     staticEl.style.visibility = 'visible';
     editableEl.style.visibility = 'collapse';
-
+  
     var allInputs = editableEl.getElementsByTagName("input");
     allInputs[0].value = currentvalue;
-}
-
-/**
- * Function makes static field visible and makes editable field hidden,
- * when editable field is type 'select'.
- */
-function makeSelectStatic(fieldid, currentValue, fieldName)  
-{
+  }
+  
+  /**
+   * Function makes static field visible and makes editable field hidden,
+   * when editable field is type 'select'.
+   */
+  
+  function makeSelectStatic(fieldid, currentValue, fieldName) {
     var staticId = fieldid + "_static";
     var editableId = fieldid + "_editable";
     var staticEl = document.getElementById(staticId);
     var editableEl = document.getElementById(editableId);
-
+  
     // Value is set to select-element once more. This has meaning, if original value is restored.
     var selectEl = editableEl.getElementsByTagName("select")[0];
     selectEl.value = currentValue;
-
+  
     // Field 'assigned_to' is handled separately, because it is only field, 
     // that is not abbreviated in static text.
-    if(fieldName == "assigned_to")
-    {
-	var newText = '<span title="' + currentValue + '">' + currentValue + '</span>';
-	staticEl.firstChild.innerHTML = newText;
+    if (fieldName == "assigned_to") {
+      var newText = '<span title="' + currentValue + '">' + currentValue + '</span>';
+  
+      var td = staticEl.getElementsByTagName("td")[0];
+      td.innerHTML = newText;
+    } else {
+      var abbr = currentValue.substr(0, 3);
+      var newText = '<span title="' + currentValue + '">' + abbr + '</span>';
+  
+      var td = staticEl.getElementsByTagName("td")[0];
+      td.innerHTML = newText;
     }
-    else
-    {
-    	var abbr = currentValue.substr(0, 3);
-    	var newText = '<span title="' + currentValue + '">' + abbr + '</span>';
-    	staticEl.firstChild.innerHTML = newText;
-    }
-
+  
     staticEl.style.visibility = 'visible';
     editableEl.style.visibility = 'collapse';
-}
-
+  }
 </script>
-
-

@@ -24,7 +24,7 @@ package Bugzilla::Extension::InlineEditor;
 use strict;
 use base qw(Bugzilla::Extension);
 
-use Bugzilla::Extension::InlineEditor::Bugrpclib;
+use Bugzilla::Extension::InlineEditor::BugRPCLib;
 
 our $VERSION = '1.0';
 

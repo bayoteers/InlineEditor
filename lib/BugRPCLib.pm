@@ -19,7 +19,7 @@
 # Contributor(s):
 #   Visa Korhonen <visa.korhonen@symbio.com>
 
-package Bugzilla::Extension::EditFieldsInline::Bugrpclib;
+package Bugzilla::Extension::InlineEditor::BugRPCLib;
 
 #use lib qw(./extensions/Scrums/lib);
 
