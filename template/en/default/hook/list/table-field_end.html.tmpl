@@ -45,8 +45,7 @@
               <td>
                 [% PROCESS "bug/field.html.tmpl"
                    bug = bug, field = select_fields.$column,
-                   override_legal_values = bug.choices.$column
-                   no_tds = 1, value = bug.$column
+                   no_tds = 1, value = bug.$column,
                    editable = 1 %]
               </td>
               <td>
