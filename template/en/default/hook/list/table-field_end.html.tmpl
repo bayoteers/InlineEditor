@@ -22,9 +22,19 @@
     [% editable = Param('inline_editor_bug_list_editable_fields') %]
     [% caneditcolumn = 0 %]
 
-    [% FOREACH field IN editable %]
-      [% IF (field == column) %]
-        [% caneditcolumn = 1 %]
+    [% has_access = 0 %]
+    [% access_groups = Param('inlineeditor_access_groups') %]
+    [% FOREACH group IN access_groups %]
+      [% IF (user.in_group(group)) %]
+        [% has_access = 1 %]
+      [% END %]
+    [% END %]
+
+    [% IF (has_access == 1) %]
+      [% FOREACH field IN editable %]
+        [% IF (field == column) %]
+          [% caneditcolumn = 1 %]
+        [% END %]
       [% END %]
     [% END %]
 

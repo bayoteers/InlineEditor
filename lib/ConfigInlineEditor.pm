@@ -35,9 +35,25 @@ sub get_param_list {
                         type    => 'm',
                         choices => [ 'bug_severity', 'priority', 'assigned_to', 'estimated_time', 'remaining_time' ],
                         default => ['estimated_time']
-                      }
+                      },
+                      {
+                        name    => 'inlineeditor_access_groups',
+                        desc    => 'Groups that are allowed to use InlineEditor.',
+                        type    => 'm',
+                        choices => \&_get_all_group_names,
+                        default => ['admin'],
+                      },
                      );
     return @param_list;
+}
+
+sub _get_all_group_names {
+    my @group_names = map { $_->name } Bugzilla::Group->get_all;
+    unshift(@group_names, '');
+
+    my @sorted = sort { lc $a cmp lc $b } @group_names;
+
+    return \@sorted;
 }
 
 1;
