@@ -30,18 +30,18 @@ sub get_param_list {
 
     my @param_list = (
                       {
-                        name    => 'inline_editor_bug_list_editable_fields',
-                        desc    => 'Those fields in bug, that are editable in bug list directly',
-                        type    => 'm',
-                        choices => [ 'bug_severity', 'priority', 'assigned_to', 'estimated_time', 'remaining_time' ],
-                        default => ['estimated_time']
+                         name    => 'inline_editor_bug_list_editable_fields',
+                         desc    => 'Those fields in bug, that are editable in bug list directly',
+                         type    => 'm',
+                         choices => [ 'bug_severity', 'priority', 'assigned_to', 'estimated_time', 'remaining_time' ],
+                         default => ['estimated_time']
                       },
                       {
-                        name    => 'inlineeditor_access_groups',
-                        desc    => 'Groups that are allowed to use InlineEditor.',
-                        type    => 'm',
-                        choices => \&_get_all_group_names,
-                        default => ['admin'],
+                         name    => 'inlineeditor_access_groups',
+                         desc    => 'Groups that are allowed to use InlineEditor.',
+                         type    => 'm',
+                         choices => \&_get_all_group_names,
+                         default => ['admin'],
                       },
                      );
     return @param_list;
