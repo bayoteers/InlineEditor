@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="extensions/InlineEditor/web/js/jquery/css/ui-lightness/jquery-ui-1.8.10.custom.css">
 
 <table>
-  [% editable = Param('inlineeditor_bug_list_editable_fields') %]
+  [% inline_editable = Param('inlineeditor_bug_list_editable_fields') %]
   [% caneditcolumn = 0 %]
 
   [% has_access = 0 %]
@@ -33,8 +33,8 @@
   [% END %]
 
   [% IF (has_access == 1) %]
-    [% FOREACH field IN editable %]
-      [% IF (field == column) %]
+    [% FOREACH inline_field IN inline_editable %]
+      [% IF (inline_field == column) %]
         [% caneditcolumn = 1 %]
       [% END %]
     [% END %]

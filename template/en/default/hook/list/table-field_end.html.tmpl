@@ -19,20 +19,20 @@
   #   Visa Korhonen <visa.korhonen@symbio.com>
   #%]
 <link rel="stylesheet" href="extensions/InlineEditor/web/js/jquery/css/ui-lightness/jquery-ui-1.8.10.custom.css">
-    [% editable = Param('inlineeditor_bug_list_editable_fields') %]
+    [% inline_editable = Param('inlineeditor_bug_list_editable_fields') %]
     [% caneditcolumn = 0 %]
 
     [% has_access = 0 %]
     [% access_groups = Param('inlineeditor_access_groups') %]
-    [% FOREACH group IN access_groups %]
-      [% IF (user.in_group(group)) %]
+    [% FOREACH inline_group IN access_groups %]
+      [% IF (user.in_group(inline_group)) %]
         [% has_access = 1 %]
       [% END %]
     [% END %]
 
     [% IF (has_access == 1) %]
-      [% FOREACH field IN editable %]
-        [% IF (field == column) %]
+      [% FOREACH inline_field IN inline_editable %]
+        [% IF (inline_field == column) %]
           [% caneditcolumn = 1 %]
         [% END %]
       [% END %]
@@ -54,7 +54,7 @@
             <tr>
               <td>
                 [% PROCESS "bug/field.html.tmpl"
-                   bug = bug, field = select_fields.$column,
+                   bug = bug, field = inline_select_fields.$column,
                    no_tds = 1, value = bug.$column,
                    editable = 1 %]
               </td>
@@ -95,7 +95,7 @@
           <table>
             <tr>
               <td>
-                <input name="estimated_time" id="estimated_time"
+                <input name="inline_estimated_time" id="inline_estimated_time"
                        value="[% PROCESS formattimeunit
                        time_unit=bug.estimated_time %]"
                        size="3" maxlength="6">
@@ -112,7 +112,7 @@
           <table>
             <tr>
               <td>
-                <input name="remaining_time" id="remaining_time"
+                <input name="inline_remaining_time" id="inline_remaining_time"
                        value="[% PROCESS formattimeunit
                        time_unit=bug.remaining_time %]"
                        size="3" maxlength="6">

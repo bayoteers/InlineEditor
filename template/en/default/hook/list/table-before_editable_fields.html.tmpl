@@ -38,12 +38,12 @@
    ****************************************************************************/
 </script>
 
-[% SET select_fields = {} %]
+[% SET inline_select_fields = {} %]
 
 [% FOREACH field = Bugzilla.get_fields(
   { type => constants.FIELD_TYPE_SINGLE_SELECT, custom => 0 })
 %]
-  [% select_fields.${field.name} = field %]
+  [% inline_select_fields.${field.name} = field %]
 [% END %]
 
 [% daily = 0 %]
