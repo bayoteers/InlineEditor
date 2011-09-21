@@ -77,8 +77,8 @@
                   </select>
                 [% ELSE %]
                   [% INCLUDE global/userselect.html.tmpl
-                     id => "assigned_to"
-                     name => "assigned_to"
+                     id => "inline_assigned_to"
+                     name => "inline_assigned_to"
                      value => bug.assigned_to
                   %]
                 [% END %]
