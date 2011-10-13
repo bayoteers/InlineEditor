@@ -49,7 +49,42 @@
 [% daily = 0 %]
 [% daily = urlquerypart.search("&daily") ? 1 : 0 %]
 
+[% inline_editable = Param('inlineeditor_bug_list_editable_fields') %]
+[% has_access = 0 %]
+[% access_groups = Param('inlineeditor_access_groups') %]
+[% FOREACH inline_group IN access_groups %]
+  [% IF (user.in_group(inline_group)) %]
+    [% has_access = 1 %]
+  [% END %]
+[% END %]
+
+[% severity_field = Bugzilla.get_fields({ name => 'bug_severity' }).first %]
+[% priority_field = Bugzilla.get_fields({ name => 'priority' }).first %]
+
+<script id="bug_severity_field_html" type="text/html">
+[% PROCESS "bug/field.html.tmpl"
+        bug = bug, field = severity_field,
+        no_tds = 1, value = 0,
+        editable = 1 %]
+</script>
+
+<script id="priority_field_html" type="text/html">
+[% PROCESS "bug/field.html.tmpl"
+        bug = bug, field = priority_field,
+        no_tds = 1, value = 0,
+        editable = 1 %]
+</script>
+
 <script type="text/javascript">
+
+  var user_has_access_to_inline_editor = [% has_access %];
+  $(document).ready(function() {
+      if(user_has_access_to_inline_editor)
+      {
+          addHTML();
+      }
+  } );
+
   // Id of that field, which is currently in editable state
   var editedFieldid = "";
   
@@ -380,4 +415,241 @@
     staticEl.style.visibility = 'visible';
     editableEl.style.visibility = 'collapse';
   }
+
+function addHTML() 
+{
+    var inline_editable = [[% FOREACH editable_field IN inline_editable %]"[% editable_field %]",[% END %]];
+    var editable_fields = new Object;
+    for(var ed_index = 0; ed_index < inline_editable.length; ed_index++)
+    {
+	editable_fields[inline_editable[ed_index]] = 1;
+    }
+    var daily = [% daily %];
+    var user_login = "[% user.login() %]";
+    var rows = $("tr.bz_bugitem");
+    var numberofitems = rows.length;
+
+    for(row_index = 0; row_index < numberofitems; row_index++)
+    {
+        current_row = rows[row_index];
+        var cells = current_row.getElementsByTagName("td");
+        var numberofcells = cells.length;
+
+        var bug_id;
+	var bug_status;
+        for(i = 0; i < numberofcells; i++)
+        {
+            var cell = cells[i];
+            var c_class = cell.className;
+            if(c_class == "first-child bz_id_column")
+            {
+	        var a = cell.getElementsByTagName("a")[0];
+                bug_id = a.innerHTML;
+            }
+            else if(c_class == "bz_bug_status_column")
+            {
+	        var statusSpan = cell.getElementsByTagName("span")[0];
+	        bug_status = statusSpan.innerHTML;
+	    }
+        }
+
+	// Cells need to be iterated backwards. 
+	// Otherwise adding cells into row messes indexing of cells and same cell will be processed several times.
+        for(i = numberofcells - 1; i >= 0; i--)
+        {
+            var cell = cells[i];
+            var c_class = cell.className;
+
+            if(c_class == "bz_scrums_blocked_column")
+            {
+		var old_content = cell.innerHTML;
+                var html = '<a href="show_bug.cgi?id=' + old_content + '">' + old_content + '</a>';
+		cell.innerHTML = html;
+	    }
+            else if(c_class == "bz_assigned_to_column" && editable_fields['assigned_to'])
+            {
+	        var assignedSpan = cell.getElementsByTagName("span")[0];
+	        var initialValue = assignedSpan.innerHTML;
+ 	        var old_content = cell.innerHTML;
+                var newContent = getAssignedToFieldHtml(bug_id, old_content, initialValue, daily, user_login, bug_status, cell);
+
+	        cell.innerHTML = newContent;
+            }
+            else if(c_class == "bz_estimated_time_column" &&  editable_fields['estimated_time'])
+            {
+ 	        var old_content = cell.innerHTML;
+		var initialValue = cell.innerHTML;
+                var newContent = getInputFieldHtml('estimated_time', bug_id, old_content, initialValue, '4' /* size */);
+
+	        cell.innerHTML = newContent;
+            }
+            else if(c_class == "bz_remaining_time_column" && editable_fields['remaining_time'])
+            {
+ 	        var old_content = cell.innerHTML;
+		var initialValue = cell.innerHTML;
+                var newContent = getInputFieldHtml('remaining_time', bug_id, old_content, initialValue, '4' /* size */);
+
+	        cell.innerHTML = newContent;
+            }
+            else if(c_class == "bz_bug_severity_column"  && editable_fields['bug_severity'])
+            {
+		var old_content = cell.innerHTML;
+		var html = getBugSeverityHtml(bug_id, old_content);
+		cell.innerHTML = html;
+	    }
+            else if(c_class == "bz_priority_column"  && editable_fields['priority'])
+            {
+		var old_content = cell.innerHTML;
+		var html = getPriorityHtml(bug_id, old_content);
+		cell.innerHTML = html;
+	    }
+        }
+    }
+}
+
+function getInputFieldHtml(field_name, bug_id, old_content, initialValue, size)
+{
+    var template = $("#InputFieldTmpl").html();
+
+    template = template.replace(/<field_name>/g, field_name);
+    template = template.replace(/<bug_id>/g, bug_id);
+    template = template.replace('<old_content>', old_content);
+    template = template.replace('<initialValue>', initialValue);
+    template = template.replace('<size>', size);
+    return template;
+}  
+
+
+function getAssignedToFieldHtml(bug_id, old_content, initialValue, daily, user_login, bug_status, cell)
+{
+    // Initial value might contain empty space or other insignificant characters
+    var assigned_to_user = (initialValue.match(user_login) != null);
+    
+    if(!daily)
+    {
+    	return getInputFieldHtml('assigned_to', bug_id, old_content, initialValue, '25' /* size */);
+    }
+    else
+    {
+	if(assigned_to_user)
+	{
+	    return old_content;
+	}
+	else
+	{
+            var assignedSpan = cell.getElementsByTagName("span")[0];
+	    assignedSpan.innerHTML = "--";
+	    var select_element = "<select>" +
+		                     "<option>--</option>" +
+                    		     "<option>" + user_login + "</option>" +
+                  		 "</select>";
+
+    	    var template = $("#SelectFieldTmpl").html();
+    	    template = template.replace(/<field_name>/g, 'assigned_to');
+    	    template = template.replace(/<bug_id>/g, bug_id);
+    	    template = template.replace('<select_field>', select_element);
+    	    template = template.replace('<old_content>', cell.innerHTML /* Contains changed text */);
+    	    return template;
+	}
+    }
+}
+
+function getBugSeverityHtml(bug_id, old_content)
+{
+    var bug_severity_field = $("#bug_severity_field_html").html();
+
+    // HTML of bug severy contains also JavaScript, that has been commented out
+    // This is a problem, because HTML contains script-tag. Parsing HTML from
+    // HTML-template stops, when 'script' end tag is encountered. 
+    // This makes parsed string to contain 'script' opening tag without ending tag.
+    // This in turn makes all HTML disappear after 'script' tag, when string is 
+    // concatenated into other text. Solution is to rip off 'script' tag from string.
+    var split_index = bug_severity_field.indexOf('<script');
+    bug_severity_field = bug_severity_field.substring(0, split_index);
+
+    var template = $("#SelectFieldTmpl").html();
+    template = template.replace(/<field_name>/g, 'bug_severity');
+    template = template.replace(/<bug_id>/g, bug_id);
+    template = template.replace('<select_field>', bug_severity_field);
+    template = template.replace('<old_content>', old_content);
+    return template;
+}
+
+function getPriorityHtml(bug_id, old_content)
+{
+    var priority_field = $("#priority_field_html").html();
+
+    // HTML of bug severy contains also JavaScript, that has been commented out
+    // This is a problem, because HTML contains script-tag. Parsing HTML from
+    // HTML-template stops, when 'script' end tag is encountered. 
+    // This makes parsed string to contain 'script' opening tag without ending tag.
+    // This in turn makes all HTML disappear after 'script' tag, when string is 
+    // concatenated into other text. Solution is to rip off 'script' tag from string.
+    var split_index = priority_field.indexOf('<script');
+    priority_field = priority_field.substring(0, split_index);
+
+    var template = $("#SelectFieldTmpl").html();
+    template = template.replace(/<field_name>/g, 'priority');
+    template = template.replace(/<bug_id>/g, bug_id);
+    template = template.replace('<select_field>', priority_field);
+    template = template.replace('<old_content>', old_content);
+    return template;
+}
+
+
 </script>
+
+<script id="SelectFieldTmpl" type="text/html">
+    <table>
+	<tr id="<bug_id>_<field_name>_static">
+	    <td ondblclick="makeeditable('<bug_id>_<field_name>');">
+	        <old_content>
+	    </td>
+	</tr>
+	<tr id="<bug_id>_<field_name>_editable" style="visibility: collapse;">
+	    <td>
+	        <table>
+	            <tr>
+	        	<td>
+        		    <select_field> 
+	        	</td>
+	                <td>
+	        	    <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+	                </td>
+	                <td>
+	        	    <span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);"></span>
+	                </td>
+	            </tr>
+	        </table>
+	   </td>
+      </tr>
+    </table>
+</script>
+
+<script id="InputFieldTmpl" type="text/html">
+    <table>
+	<tr id="<bug_id>_<field_name>_static">
+	    <td ondblclick="makeeditable('<bug_id>_<field_name>');">
+	        <old_content>
+	    </td>
+	</tr>
+	<tr id="<bug_id>_<field_name>_editable" style="visibility: collapse;">
+	    <td>
+	        <table>
+	            <tr>
+	        	<td>
+        		    <input size="<size>" name="inline_<field_name>" value="<initialValue>" id="inline_<field_name>"> 
+	        	</td>
+	                <td>
+	        	    <span class="ui-icon ui-icon-arrowreturnthick-1-w" title="cancel"" onclick="checkIfEditedFieldChanged(false);"></span>
+	                </td>
+	                <td>
+	        	    <span class="ui-icon ui-icon-check" title="save" onclick="checkIfEditedFieldChanged(true);"></span>
+	                </td>
+	            </tr>
+	        </table>
+	   </td>
+      </tr>
+    </table>
+</script>
+
