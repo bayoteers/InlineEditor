@@ -58,12 +58,5 @@ sub config_add_panels {
     $modules->{InlineEditor} = "Bugzilla::Extension::InlineEditor::ConfigInlineEditor";
 }
 
-sub template_before_process {
-    my ($self, $args) = @_;
-
-    my $vars = $args->{vars};
-    $vars->{treeviewurl} = "page.cgi?id=EnhancedTreeView.html";
-}
-
 # This must be the last line of your extension.
 __PACKAGE__->NAME;
