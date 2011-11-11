@@ -195,8 +195,7 @@
     [% FOREACH column = displaycolumns %]
     <td [% 'style="white-space: nowrap"' IF NOT abbrev.$column.wrap %]
         class="bz_[% column FILTER css_class_quote %]_column">
-[% Hook.process('field_start') %]
-
+      [% Hook.process('field_start') %]
       [% IF abbrev.$column.maxlength %]
         <span title="[%- display_value(column, bug.$column) FILTER html %]">
       [% END %]
@@ -211,14 +210,17 @@
         [% SET login_column = column.remove('_realname$') %]
         [% bug.${login_column}.truncate(abbrev.$column.maxlength, 
                                         abbrev.$column.ellipsis) FILTER html %]
-
+      [% ELSIF column.match('^depends_on$') || column.match('^blocks$') %]
+        [% FOREACH bug_id IN bug.$column.split(',') %]
+          [%+ "${bug_id}" FILTER bug_link(bug_id) FILTER none %]
+        [% END %]
       [% ELSE %]
         [%- display_value(column, bug.$column).truncate(abbrev.$column.maxlength, abbrev.$column.ellipsis) FILTER html -%]
       [% END %]
       [% IF abbrev.$column.maxlength %]
         </span>
       [% END %]
-[% Hook.process('field_end') %]
+      [% Hook.process('field_end') %]
     </td>
     [% END %]
 
