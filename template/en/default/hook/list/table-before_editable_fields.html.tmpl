@@ -573,6 +573,7 @@ function getBugSeverityHtml(bug_id, old_content)
     template = template.replace(/<bug_id>/g, bug_id);
     template = template.replace('<select_field>', bug_severity_field);
     template = template.replace('<old_content>', old_content);
+    template = template.replace('name="severity"', '');
     return template;
 }
 
@@ -594,6 +595,7 @@ function getPriorityHtml(bug_id, old_content)
     template = template.replace(/<bug_id>/g, bug_id);
     template = template.replace('<select_field>', priority_field);
     template = template.replace('<old_content>', old_content);
+    template = template.replace('name="priority"', '');
     return template;
 }
 
